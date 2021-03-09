@@ -11,7 +11,7 @@ import { SafeAreaView, View, Text, StatusBar } from "react-native";
 
 import * as eva from "@eva-design/eva";
 import { NavigationContainer } from "@react-navigation/native";
-import { ApplicationProvider, IconRegistry } from "@ui-kitten/components";
+import { ApplicationProvider, Button, IconRegistry } from "@ui-kitten/components";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import "react-native-gesture-handler";
 
@@ -21,6 +21,7 @@ import reduxThunk from "redux-thunk";
 import reducers from "./src/reducers/index.js";
 import AppNav from "./AppNav";
 import { SafeAreaProvider } from "react-native-safe-area-context";
+import theme from "./src/themes/one.json"
 
 const store = createStore(
   reducers, // Reducers
@@ -33,7 +34,7 @@ const App = () => {
     <SafeAreaProvider>
       <Provider store={store}>
         <IconRegistry icons={EvaIconsPack} />
-        <ApplicationProvider {...eva} theme={eva.light}>
+        <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
           <NavigationContainer>
             <AppNav />
           </NavigationContainer>
@@ -41,6 +42,12 @@ const App = () => {
       </Provider>
     </SafeAreaProvider>
   );
+  /* <IconRegistry icons={EvaIconsPack} />
+      <ApplicationProvider {...eva} theme={eva.light}>
+        <View>
+          <Button>hola</Button>
+        </View>
+      </ApplicationProvider> */
 };
 
 export default App;
