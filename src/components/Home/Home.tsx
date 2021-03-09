@@ -30,9 +30,9 @@ const Home = ({ navigation, route }) => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [initialBattleID, setInitialBattleID] = useState("");
-  const theme = useTheme();
+
   return (
-    <Panel>
+    <Panel totalHeight={0}>
       <TopNavigation title={CustomTitle} />
       <ViewPager
         selectedIndex={selectedIndex}
@@ -50,18 +50,6 @@ const Home = ({ navigation, route }) => {
       </ViewPager>
     </Panel>
   );
-  /**  <ViewPager
-        selectedIndex={selectedIndex}
-        onSelect={(index) => setSelectedIndex(index)}>
-        <View style={styles.tab}>
-          <Battle navigation route initialBattleID={initialBattleID} />
-        </View>
-        <View style={styles.tab}>
-          <BattleHistory
-            onSelect={(battleID) => setInitialBattleID(battleID)}
-          />
-        </View>
-      </ViewPager>*/
 };
 const w = Dimensions.get("window");
 const styles = StyleSheet.create({

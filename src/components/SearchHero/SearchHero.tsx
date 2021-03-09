@@ -9,26 +9,30 @@ import {
   TopNavigationAction,
 } from "@ui-kitten/components";
 import { TouchableWithoutFeedback } from "@ui-kitten/components/devsupport";
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import api from "../../libs/api/api";
 import HeroType from "../../libs/types/HeroType";
+import utils from "./../../libs/utils/utils";
 
 import Panel from "../Panel/Panel";
 const TAG = "SEARCH HERO";
 let actualInputValue = "";
 const SearchInput = ({ onResults = (data) => {} }) => {
-  const [inputValue, setInputValue] = useState("flash");
+  const [inputValue, setInputValue] = useState("");
   let myTime = setTimeout(() => {}, 0);
-  function callApi() {
+  function callApi(text: string) {
+    if (!(text.length > 0)) {
+      console.log(TAG, "callApi reject text length = ", text.length);
+      return;
+    }
     api
-      .searchHeroesByName(inputValue)
+      .searchHeroesByName(text)
       .then((data) => {
-        console.log(TAG, data);
         onResults(data);
       })
       .catch((err) => {
-        console.log(TAG, err);
+        console.log(TAG, "fail searchHeroesByName", err);
       });
   }
   function search(text) {
@@ -37,9 +41,9 @@ const SearchInput = ({ onResults = (data) => {} }) => {
     actualInputValue = text;
     myTime = setTimeout(() => {
       if (text == actualInputValue) {
-        callApi();
+        callApi(actualInputValue);
       }
-    }, 300);
+    }, 100);
     //
   }
   const renderIcon = (props) => (
@@ -55,6 +59,18 @@ const SearchInput = ({ onResults = (data) => {} }) => {
       </TouchableWithoutFeedback>
     </>
   );
+
+  useEffect(() => {
+    api
+      .getLastSearch()
+      .then((data) => {
+        console.log(TAG, "last search = " + data);
+        search(data);
+      })
+      .catch((err) => {
+        console.log(TAG, "last search fail");
+      });
+  }, [setInputValue]);
 
   return (
     <View>
@@ -74,8 +90,6 @@ interface CustomMessageProps {
   dataO: any;
 }
 const CustomMessage = ({ onPress, dataO }: CustomMessageProps) => {
-  console.log(TAG, dataO);
-
   const data = new HeroType(dataO.item);
 
   const renderItemAccessory = (props) => (
@@ -92,6 +106,7 @@ const CustomMessage = ({ onPress, dataO }: CustomMessageProps) => {
 
   return (
     <ListItem
+      key={utils.generateKey(`HeroItem${data.id}`)}
       title={`${data.name}`}
       description={`${data.description}`}
       accessoryLeft={renderItemIcon}
@@ -130,14 +145,13 @@ const SearchHero = ({ navigation, route }) => {
   };
   if (typeof route.params.callBack !== "undefined") {
     callBack = (data) => {
-      console.log(TAG, data);
       route.params.callBack(data);
       goBack();
     };
   }
-  console.log(TAG, route);
   const messageList = useRef<FlatList>();
   const [dataO, setDataO] = useState<Array<HeroType>>([]);
+
   return (
     <Panel totalHeight={0}>
       <CustomTopNav goBack={goBack} />

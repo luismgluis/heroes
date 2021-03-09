@@ -59,7 +59,10 @@ const HeroCard = ({ heroData, onHeroUpdate, navigation }: HeroCardProps) => {
             uri: heroInfo.urlImage,
           }}
         />
-        <Button onPress={onPress} accessoryRight={StarIcon}>
+        <Button
+          style={{ borderRadius: 0 }}
+          onPress={onPress}
+          accessoryRight={StarIcon}>
           {buttonTitle}
         </Button>
       </Layout>

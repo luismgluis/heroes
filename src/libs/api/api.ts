@@ -2,6 +2,7 @@ import axios from "axios";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import HeroType from "../types/HeroType";
+import { BattleType } from "../types/BattleType";
 const TAG = "API";
 class api {
   static instance: any;
@@ -14,7 +15,12 @@ class api {
     return this;
   }
   searchHeroesByName(name: string) {
-    const analice = (arr, resolve) => {
+    const saveLastSearch = () => {
+      AsyncStorage.setItem(`lastSearchSaved`, name);
+    };
+
+    const analiceData = (arr, resolve) => {
+      saveLastSearch();
       const res: Array<HeroType> = [];
       for (const key in arr) {
         if (!Object.prototype.hasOwnProperty.call(arr, key)) {
@@ -25,33 +31,27 @@ class api {
       }
       resolve(res);
     };
+
     const getFromWeb = (encodeName, resolve, reject) => {
       const theUrl = `https://www.superheroapi.com/api.php/870124487160923/search/${encodeName}`;
       axios
         .get(theUrl)
         .then(function (response) {
-          // handle success
-          console.log(response);
           const arr = response.data.results;
           AsyncStorage.setItem(
             `searchHeroesByName/${encodeName}`,
             JSON.stringify(arr),
           )
-            .then((err) => {
-              console.log(TAG, err);
+            .then((res) => {
+              console.log(TAG, `searchHeroesByName/${encodeName} saved`);
             })
             .catch((err) => {
-              console.log(TAG, err);
+              console.log(TAG, `searchHeroesByName/${encodeName} fail saved`);
             });
-          analice(arr, resolve);
+          analiceData(arr, resolve);
         })
         .catch(function (error) {
-          // handle error
           reject("API-FAIL");
-          console.log(error);
-        })
-        .then(function () {
-          // always executed
         });
     };
     const getFromLocal = (encodeName, resolve, reject) => {
@@ -61,7 +61,7 @@ class api {
             getFromWeb(encodeName, resolve, reject);
             return;
           }
-          analice(JSON.parse(data), resolve);
+          analiceData(JSON.parse(data), resolve);
         })
         .catch((err) => {
           getFromWeb(encodeName, resolve, reject);
@@ -71,7 +71,7 @@ class api {
     return new Promise<Array<HeroType>>((resolve, reject) => {
       try {
         if (!/^[a-z0-9]+$/i.test(name)) {
-          reject("ALFANUM");
+          reject(`NOT PASS REGEX ALFANUM (${name})`);
           return;
         }
         const encodeName = encodeURI(name);
@@ -88,6 +88,54 @@ class api {
         reject(err);
       }
     });
+  }
+  getLastSearch() {
+    return new Promise<string>((resolve, reject) => {
+      try {
+        AsyncStorage.getItem(`lastSearchSaved`)
+          .then((data) => {
+            if (data !== null) {
+              resolve(data);
+              return;
+            }
+            reject(null);
+          })
+          .catch((err) => {
+            reject(err);
+          });
+      } catch (error) {
+        reject(null);
+      }
+    });
+  }
+  saveBattle(battle: BattleType) {
+    const path = `last100BattleSaved`;
+    AsyncStorage.getItem(path)
+      .then((data) => {
+        let arr: Array<BattleType> = [];
+        let json = {};
+        let counter = 0;
+
+        if (data !== null) {
+          json = JSON.parse(data);
+        }
+        for (const key in json) {
+          if (!Object.prototype.hasOwnProperty.call(json, key)) {
+            continue;
+          }
+          counter++;
+          const element = json[key];
+          arr.push(new BattleType(element));
+          if (counter > 98) {
+            break;
+          }
+        }
+        arr.push(battle);
+        AsyncStorage.setItem(path, JSON.stringify(arr));
+      })
+      .catch((err) => {
+        console.log(TAG, "saveBattle fail", err);
+      });
   }
 }
 export default new api();

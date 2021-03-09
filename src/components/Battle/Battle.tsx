@@ -1,6 +1,7 @@
 import { Button, Layout, Text, useTheme } from "@ui-kitten/components";
 import React, { useState } from "react";
 import { Alert, Dimensions, Image, StyleSheet, View } from "react-native";
+import { BattleType, BattleTypeProps } from "../../libs/types/BattleType";
 import HeroType from "../../libs/types/HeroType";
 import Panel from "../Panel/Panel";
 import HeroCard from "./../HeroCard/HeroCard";
@@ -13,31 +14,20 @@ const cAlert = (title, msj) => {
     { cancelable: false },
   );
 };
-const actionRun = (hero1: HeroType, hero2: HeroType) => {
-  const p1 = hero1.powerstats;
-  const p2 = hero2.powerstats;
-  if (p1.speed == p2.speed) {
-    cAlert("it's a tie", "Now change to another hero");
+
+const actionFight = (data: BattleTypeProps) => {
+  const b = new BattleType(data);
+  if (b.winner.result == "tie") {
+    cAlert(
+      "tied fight",
+      `${b.hero1.name} and ${b.hero2.name} has the same ${data.confrontation}`,
+    );
     return;
   }
-  if (p1.speed > p2.speed) {
-    cAlert(`${hero1.name} wins`, `${p1.speed} is greater than ${p2.speed}`);
-    return;
-  }
-  cAlert(`${hero2.name} wins`, `${p2.speed} is greater than ${p1.speed}`);
-};
-const actionFight = (hero1: HeroType, hero2: HeroType) => {
-  const p1 = hero1.powerstats;
-  const p2 = hero2.powerstats;
-  if (p1.power == p2.power) {
-    cAlert("it's a tie", "Now change to another hero");
-    return;
-  }
-  if (p1.power > p2.power) {
-    cAlert(`${hero1.name} wins`, `${p1.power} is greater than ${p2.power}`);
-    return;
-  }
-  cAlert(`${hero2.name} wins`, `${p2.power} is greater than ${p1.power}`);
+  cAlert(
+    `${b.winner.hero.name} wins!`,
+    `${b.winner.hero.name} is better than ${b.loser.name} in '${data.confrontation}'`,
+  );
 };
 
 const Battle = ({ navigation, route, initialBattleID = "" }) => {
@@ -46,7 +36,7 @@ const Battle = ({ navigation, route, initialBattleID = "" }) => {
   const [actualHero1, setActualHero1] = useState(initialHero);
   const [actualHero2, setActualHero2] = useState(initialHero);
   return (
-    <Panel style={styles.container}>
+    <Panel style={styles.container} totalHeight={80}>
       <View style={styles.panelCards}>
         <View style={styles.panelCard}>
           <HeroCard
@@ -67,14 +57,22 @@ const Battle = ({ navigation, route, initialBattleID = "" }) => {
         <View style={styles.panelButtons}>
           <Button
             onPress={() => {
-              actionRun(actualHero1, actualHero2);
+              actionFight({
+                hero1: actualHero1,
+                hero2: actualHero2,
+                confrontation: "power",
+              });
             }}
             style={styles.button}>
             RUN
           </Button>
           <Button
             onPress={() => {
-              actionFight(actualHero1, actualHero2);
+              actionFight({
+                hero1: actualHero1,
+                hero2: actualHero2,
+                confrontation: "speed",
+              });
             }}
             style={styles.button}>
             FIGHT
@@ -91,12 +89,9 @@ const Battle = ({ navigation, route, initialBattleID = "" }) => {
     </Panel>
   );
 };
-const w = Dimensions.get("window");
+const w = Dimensions.get("screen");
 const styles = StyleSheet.create({
-  container: {
-    height: w.height - 80,
-    //width: "50%",
-  },
+  container: {},
   panelCards: {
     flex: 12,
     flexDirection: "row",

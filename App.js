@@ -11,7 +11,7 @@ import { SafeAreaView, View, Text, StatusBar } from "react-native";
 
 import * as eva from "@eva-design/eva";
 import { NavigationContainer } from "@react-navigation/native";
-import { ApplicationProvider, Button, IconRegistry } from "@ui-kitten/components";
+import { ApplicationProvider, Button, IconRegistry, useTheme } from "@ui-kitten/components";
 import { EvaIconsPack } from "@ui-kitten/eva-icons";
 import "react-native-gesture-handler";
 
@@ -21,7 +21,7 @@ import reduxThunk from "redux-thunk";
 import reducers from "./src/reducers/index.js";
 import AppNav from "./AppNav";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import theme from "./src/themes/one.json"
+import themeStyle from "./src/themes/one.json"
 
 const store = createStore(
   reducers, // Reducers
@@ -30,17 +30,24 @@ const store = createStore(
 );
 
 const App = () => {
+  const theme = useTheme()
   return (
-    <SafeAreaProvider>
-      <Provider store={store}>
-        <IconRegistry icons={EvaIconsPack} />
-        <ApplicationProvider {...eva} theme={{ ...eva.dark, ...theme }}>
-          <NavigationContainer>
-            <AppNav />
-          </NavigationContainer>
-        </ApplicationProvider>
-      </Provider>
-    </SafeAreaProvider>
+    <>
+      <StatusBar
+        animated={true}
+        backgroundColor={"#D55F00"} />
+      <SafeAreaProvider>
+        <Provider store={store}>
+          <IconRegistry icons={EvaIconsPack} />
+          <ApplicationProvider {...eva} theme={{ ...eva.dark, ...themeStyle }}>
+            <NavigationContainer>
+              <AppNav />
+            </NavigationContainer>
+          </ApplicationProvider>
+        </Provider>
+      </SafeAreaProvider >
+    </>
+
   );
   /* <IconRegistry icons={EvaIconsPack} />
       <ApplicationProvider {...eva} theme={eva.light}>
