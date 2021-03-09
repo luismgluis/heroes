@@ -1,13 +1,21 @@
 import { Button, Icon, Layout, Text } from "@ui-kitten/components";
 import React, { useState } from "react";
-import { Dimensions, Image, StyleSheet } from "react-native";
+import { Dimensions, Image, StyleSheet, View } from "react-native";
+import StackUtils from "stack-utils";
+import HeroType from "../../libs/types/HeroType";
 const TAG = "";
+
+const Stats = ({ title, value }) => {
+  return (
+    <View style={styles.itemStats}>
+      <Text>{title + ": "}</Text>
+      <Text style={styles.numStats}>{value}</Text>
+    </View>
+  );
+};
+
 const StarIcon = (props) => <Icon {...props} name="flip-outline" />;
-export interface HeroType {
-  id: string;
-  name: string;
-  urlImage: string;
-}
+
 interface HeroCardProps {
   heroData: HeroType;
   navigation: any;
@@ -23,26 +31,39 @@ const HeroCard = ({ heroData, navigation }: HeroCardProps) => {
     console.log(TAG, "pepe");
     navigation.navigate("SearchHero", {
       callBack: (data) => {
+        console.log(TAG, data);
         setHeroInfo(data);
       },
     });
   };
+  const allPowers = [];
+  console.log(TAG, "allPowers");
+  for (const key in heroInfo.powerstats) {
+    if (!Object.prototype.hasOwnProperty.call(heroInfo.powerstats, key)) {
+      continue;
+    }
+    const power = heroInfo.powerstats[key];
+    allPowers.push(<Stats title={key.toUpperCase()} value={power} />);
+  }
   const buttonTitle = heroInfo.name !== "" ? "Change Hero" : "Select Hero";
   return (
-    <Layout style={styles.cardHero}>
-      <Text category="h5" style={styles.cardName}>
-        {heroInfo.name}
-      </Text>
-      <Image
-        style={styles.cardImage}
-        source={{
-          uri: heroInfo.urlImage,
-        }}
-      />
-      <Button onPress={onPress} accessoryRight={StarIcon}>
-        {buttonTitle}
-      </Button>
-    </Layout>
+    <View>
+      <Layout style={styles.cardHero}>
+        <Text category="h5" style={styles.cardName}>
+          {heroInfo.name}
+        </Text>
+        <Image
+          style={styles.cardImage}
+          source={{
+            uri: heroInfo.urlImage,
+          }}
+        />
+        <Button onPress={onPress} accessoryRight={StarIcon}>
+          {buttonTitle}
+        </Button>
+      </Layout>
+      <Layout style={styles.panelStats}>{allPowers}</Layout>
+    </View>
   );
 };
 
@@ -51,6 +72,22 @@ const styles = StyleSheet.create({
   container: {
     height: w.height - 80,
     //width: "50%",
+  },
+  numStats: {
+    position: "absolute",
+    right: 0,
+    top: 3,
+  },
+  itemStats: {
+    width: "100%",
+    flexDirection: "row",
+    padding: 5,
+    alignContent: "space-between",
+  },
+  panelStats: {
+    borderRadius: 12,
+    marginTop: 5,
+    padding: 5,
   },
   cardHero: {
     //height: w.height / 4 + 80,

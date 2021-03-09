@@ -3,6 +3,7 @@ import {
   Icon,
   Input,
   Layout,
+  ListItem,
   Text,
   TopNavigation,
   TopNavigationAction,
@@ -11,11 +12,12 @@ import { TouchableWithoutFeedback } from "@ui-kitten/components/devsupport";
 import React, { useRef, useState } from "react";
 import { FlatList, Pressable, StyleSheet, View } from "react-native";
 import api from "../../libs/api/api";
-import { HeroType } from "../HeroCard/HeroCard";
+import HeroType from "../../libs/types/HeroType";
+
 import Panel from "../Panel/Panel";
 const TAG = "SEARCH HERO";
 let actualInputValue = "";
-const SearchInput = () => {
+const SearchInput = ({ onResults = (data) => {} }) => {
   const [inputValue, setInputValue] = useState("flash");
   let myTime = setTimeout(() => {}, 0);
   function callApi() {
@@ -23,6 +25,7 @@ const SearchInput = () => {
       .searchHeroesByName(inputValue)
       .then((data) => {
         console.log(TAG, data);
+        onResults(data);
       })
       .catch((err) => {
         console.log(TAG, err);
@@ -66,13 +69,34 @@ const SearchInput = () => {
   );
 };
 
-const CustomMessage = ({ onPress, data }) => {
+interface CustomMessageProps {
+  onPress: (data) => void;
+  dataO: any;
+}
+const CustomMessage = ({ onPress, dataO }: CustomMessageProps) => {
+  console.log(TAG, dataO);
+
+  const data = new HeroType(dataO.item);
+
+  const renderItemAccessory = (props) => (
+    <Button
+      onPress={() => {
+        onPress(data);
+      }}
+      size="tiny">
+      Select
+    </Button>
+  );
+
+  const renderItemIcon = (props) => <Icon {...props} name="person" />;
+
   return (
-    <View>
-      <Pressable onPress={onPress}>
-        <Text>pp</Text>
-      </Pressable>
-    </View>
+    <ListItem
+      title={`${data.name}`}
+      description={`${data.description}`}
+      accessoryLeft={renderItemIcon}
+      accessoryRight={renderItemAccessory}
+    />
   );
 };
 
@@ -106,6 +130,7 @@ const SearchHero = ({ navigation, route }) => {
   };
   if (typeof route.params.callBack !== "undefined") {
     callBack = (data) => {
+      console.log(TAG, data);
       route.params.callBack(data);
       goBack();
     };
@@ -117,7 +142,7 @@ const SearchHero = ({ navigation, route }) => {
     <Panel totalHeight={0}>
       <CustomTopNav goBack={goBack} />
       <View style={styles.top}>
-        <SearchInput />
+        <SearchInput onResults={(data) => setDataO(data)} />
       </View>
       <View style={styles.top}>
         <FlatList
@@ -125,8 +150,8 @@ const SearchHero = ({ navigation, route }) => {
           scrollEnabled={false}
           style={styles.flatList}
           data={dataO}
-          renderItem={(rowData) => (
-            <CustomMessage onPress={callBack} data={rowData} />
+          renderItem={(item) => (
+            <CustomMessage onPress={callBack} dataO={item} />
           )}
         />
       </View>

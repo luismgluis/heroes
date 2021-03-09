@@ -1,17 +1,14 @@
 import { Button, Layout, Text, useTheme } from "@ui-kitten/components";
 import React from "react";
 import { Dimensions, Image, StyleSheet, View } from "react-native";
+import HeroType from "../../libs/types/HeroType";
 import Panel from "../Panel/Panel";
-import HeroCard, { HeroType } from "./../HeroCard/HeroCard";
+import HeroCard from "./../HeroCard/HeroCard";
 const TAG = "BATTLE";
 
 const Battle = ({ navigation, route, initialBattleID = "" }) => {
   console.log(TAG, navigation);
-  const aHero: HeroType = {
-    name: "",
-    urlImage: "",
-    id: "",
-  };
+  const aHero: HeroType = new HeroType({});
   return (
     <Panel style={styles.container}>
       <View style={styles.panelCards}>
@@ -21,6 +18,10 @@ const Battle = ({ navigation, route, initialBattleID = "" }) => {
         <View style={styles.panelCard}>
           <HeroCard heroData={aHero} navigation={navigation} />
         </View>
+      </View>
+      <View style={styles.panelButtons}>
+        <Button style={styles.button}>RUN</Button>
+        <Button style={styles.button}>FIGHT</Button>
       </View>
     </Panel>
   );
@@ -39,23 +40,18 @@ const styles = StyleSheet.create({
     flex: 6,
     padding: 5,
   },
-  cardHero: {
-    //height: w.height / 4 + 80,
+  panelButtons: {
+    alignSelf: "center",
+    alignItems: "center",
+    flexDirection: "row",
+    marginBottom: 10,
+  },
+  button: {
+    height: 80,
+    width: 100,
     borderRadius: 12,
-    overflow: "hidden",
-  },
-  cardImage: {
-    width: "100%",
-    height: w.height / 4,
-  },
-  cardName: {
-    paddingLeft: 5,
-    textAlign: "center",
-    position: "absolute",
-    top: 0,
-    zIndex: 1,
-    width: "100%",
-    backgroundColor: "#01235acc",
+    marginVertical: 10,
+    marginHorizontal: 10,
   },
 });
 export default Battle;
