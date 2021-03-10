@@ -60,7 +60,8 @@ const HeroCard = ({ heroData, onHeroUpdate, navigation }: HeroCardProps) => {
           }}
         />
         <Button
-          style={{ borderRadius: 0 }}
+          style={styles.cardButton}
+          appearance="outline"
           onPress={onPress}
           accessoryRight={StarIcon}>
           {buttonTitle}
@@ -110,6 +111,12 @@ const styles = StyleSheet.create({
     zIndex: 1,
     width: "100%",
     backgroundColor: "#01235acc",
+  },
+  cardButton: {
+    borderTopEndRadius: 0,
+    borderTopStartRadius: 0,
+    borderBottomEndRadius: 12,
+    borderBottomStartRadius: 12,
   },
 });
 

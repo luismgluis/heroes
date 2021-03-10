@@ -1,6 +1,7 @@
 import { Button, Layout, Text, useTheme } from "@ui-kitten/components";
 import React, { useState } from "react";
 import { Alert, Dimensions, Image, StyleSheet, View } from "react-native";
+import api from "../../libs/api/api";
 import { BattleType, BattleTypeProps } from "../../libs/types/BattleType";
 import HeroType from "../../libs/types/HeroType";
 import Panel from "../Panel/Panel";
@@ -19,7 +20,7 @@ const actionFight = (data: BattleTypeProps) => {
   const b = new BattleType(data);
   if (b.winner.result == "tie") {
     cAlert(
-      "tied fight",
+      "Tied fight",
       `${b.hero1.name} and ${b.hero2.name} has the same ${data.confrontation}`,
     );
     return;
@@ -28,6 +29,7 @@ const actionFight = (data: BattleTypeProps) => {
     `${b.winner.hero.name} wins!`,
     `${b.winner.hero.name} is better than ${b.loser.name} in '${data.confrontation}'`,
   );
+  api.saveBattle(b);
 };
 
 const Battle = ({ navigation, route, initialBattleID = "" }) => {
@@ -56,22 +58,24 @@ const Battle = ({ navigation, route, initialBattleID = "" }) => {
       {actualHero1.id !== "" && actualHero2.id !== "" && (
         <View style={styles.panelButtons}>
           <Button
+            appearance="outline"
             onPress={() => {
               actionFight({
                 hero1: actualHero1,
                 hero2: actualHero2,
-                confrontation: "power",
+                confrontation: "speed",
               });
             }}
             style={styles.button}>
             RUN
           </Button>
           <Button
+            appearance="outline"
             onPress={() => {
               actionFight({
                 hero1: actualHero1,
                 hero2: actualHero2,
-                confrontation: "speed",
+                confrontation: "power",
               });
             }}
             style={styles.button}>

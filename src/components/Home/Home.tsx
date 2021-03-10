@@ -4,7 +4,6 @@ import {
   Layout,
   Text,
   TopNavigation,
-  TopNavigationAction,
   useTheme,
   ViewPager,
 } from "@ui-kitten/components";
@@ -12,15 +11,31 @@ import React, { useState } from "react";
 import { Dimensions, StyleSheet, View } from "react-native";
 import Battle from "../Battle/Battle";
 import BattleHistory from "../BattleHistory/BattleHistory";
-import HeroInfo from "../HeroInfo/HeroInfo";
 import Panel from "../Panel/Panel";
 
 const TAG = "HOME";
-const CustomTitle = () => {
+const CustomTitle = ({ onPress }) => {
+  const theme = useTheme();
   return (
-    <Text style={{ textAlign: "center" }} category="h3">
-      HeroesVS⚡
-    </Text>
+    <Panel
+      style={{
+        flexDirection: "row",
+        width: "100%",
+        height: 50,
+        padding: 5,
+        backgroundColor: theme["color-info-800"],
+      }}>
+      <Text style={{ textAlign: "center" }} category="h3">
+        HeroesVS⚡
+      </Text>
+      <Button
+        onPress={onPress}
+        style={{ position: "absolute", right: 0 }}
+        appearance="ghost"
+        size="large"
+        accessoryRight={(props) => <Icon {...props} name="list-outline" />}
+      />
+    </Panel>
   );
 };
 const Home = ({ navigation, route }) => {
@@ -30,10 +45,17 @@ const Home = ({ navigation, route }) => {
 
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [initialBattleID, setInitialBattleID] = useState("");
-
+  //<TopNavigation title={CustomTitle} />
+  const changePaperIndex = () => {
+    if (selectedIndex == 0) {
+      setSelectedIndex(1);
+      return;
+    }
+    setSelectedIndex(0);
+  };
   return (
     <Panel totalHeight={0}>
-      <TopNavigation title={CustomTitle} />
+      <CustomTitle onPress={changePaperIndex} />
       <ViewPager
         selectedIndex={selectedIndex}
         onSelect={(index) => setSelectedIndex(index)}>
@@ -45,7 +67,7 @@ const Home = ({ navigation, route }) => {
           />
         </View>
         <View>
-          <Button>holas2</Button>
+          <BattleHistory />
         </View>
       </ViewPager>
     </Panel>

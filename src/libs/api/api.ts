@@ -109,6 +109,7 @@ class api {
     });
   }
   saveBattle(battle: BattleType) {
+    console.log(TAG, "Saved battle");
     const path = `last100BattleSaved`;
     AsyncStorage.getItem(path)
       .then((data) => {
@@ -132,10 +133,44 @@ class api {
         }
         arr.push(battle);
         AsyncStorage.setItem(path, JSON.stringify(arr));
+        console.log(TAG, arr);
       })
       .catch((err) => {
         console.log(TAG, "saveBattle fail", err);
       });
+  }
+  getBattleHistory() {
+    const path = `last100BattleSaved`;
+    return new Promise<Array<BattleType>>((resolve, reject) => {
+      try {
+        AsyncStorage.getItem(path)
+          .then((data) => {
+            let arr: Array<BattleType> = [];
+            let json = {};
+            let counter = 0;
+
+            if (data !== null) {
+              json = JSON.parse(data);
+            }
+
+            for (const key in json) {
+              if (!Object.prototype.hasOwnProperty.call(json, key)) {
+                continue;
+              }
+              counter++;
+              const element = json[key];
+              arr.unshift(new BattleType(element));
+            }
+            //console.log(TAG, arr);
+            resolve(arr);
+          })
+          .catch((err) => {
+            console.log(TAG, "saveBattle fail", err);
+          });
+      } catch (error) {
+        reject(null);
+      }
+    });
   }
 }
 export default new api();

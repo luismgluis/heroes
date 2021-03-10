@@ -1,16 +1,24 @@
 import {
+  Avatar,
   Button,
   Icon,
   Input,
   Layout,
   ListItem,
+  Spinner,
   Text,
   TopNavigation,
   TopNavigationAction,
 } from "@ui-kitten/components";
 import { TouchableWithoutFeedback } from "@ui-kitten/components/devsupport";
 import React, { useEffect, useRef, useState } from "react";
-import { FlatList, Pressable, StyleSheet, View } from "react-native";
+import {
+  Dimensions,
+  FlatList,
+  Pressable,
+  StyleSheet,
+  View,
+} from "react-native";
 import api from "../../libs/api/api";
 import HeroType from "../../libs/types/HeroType";
 import utils from "./../../libs/utils/utils";
@@ -18,7 +26,12 @@ import utils from "./../../libs/utils/utils";
 import Panel from "../Panel/Panel";
 const TAG = "SEARCH HERO";
 let actualInputValue = "";
-const SearchInput = ({ onResults = (data) => {} }) => {
+
+interface SearchInputProps {
+  onSearch: (val: boolean) => void;
+  onResults: (val: any) => void;
+}
+const SearchInput = ({ onSearch, onResults }: SearchInputProps) => {
   const [inputValue, setInputValue] = useState("");
   let myTime = setTimeout(() => {}, 0);
   function callApi(text: string) {
@@ -26,12 +39,15 @@ const SearchInput = ({ onResults = (data) => {} }) => {
       console.log(TAG, "callApi reject text length = ", text.length);
       return;
     }
+    onSearch(true);
     api
       .searchHeroesByName(text)
       .then((data) => {
+        onSearch(false);
         onResults(data);
       })
       .catch((err) => {
+        onSearch(false);
         console.log(TAG, "fail searchHeroesByName", err);
       });
   }
@@ -41,6 +57,7 @@ const SearchInput = ({ onResults = (data) => {} }) => {
     actualInputValue = text;
     myTime = setTimeout(() => {
       if (text == actualInputValue) {
+        console.log(TAG, "call api");
         callApi(actualInputValue);
       }
     }, 100);
@@ -75,6 +92,7 @@ const SearchInput = ({ onResults = (data) => {} }) => {
   return (
     <View>
       <Input
+        placeholder={"...Search here..."}
         value={inputValue}
         onChangeText={(text) => {
           search(text);
@@ -102,7 +120,9 @@ const CustomMessage = ({ onPress, dataO }: CustomMessageProps) => {
     </Button>
   );
 
-  const renderItemIcon = (props) => <Icon {...props} name="person" />;
+  const renderItemIcon = (props) => (
+    <Avatar size="large" source={{ uri: data.urlImage }} />
+  );
 
   return (
     <ListItem
@@ -151,31 +171,40 @@ const SearchHero = ({ navigation, route }) => {
   }
   const messageList = useRef<FlatList>();
   const [dataO, setDataO] = useState<Array<HeroType>>([]);
-
+  const [searching, setSearching] = useState(false);
   return (
     <Panel totalHeight={0}>
       <CustomTopNav goBack={goBack} />
       <View style={styles.top}>
-        <SearchInput onResults={(data) => setDataO(data)} />
+        <SearchInput
+          onSearch={(val) => setSearching(val)}
+          onResults={(data) => setDataO(data)}
+        />
       </View>
       <View style={styles.top}>
-        <FlatList
-          ref={messageList}
-          scrollEnabled={false}
-          style={styles.flatList}
-          data={dataO}
-          renderItem={(item) => (
-            <CustomMessage onPress={callBack} dataO={item} />
-          )}
-        />
+        {!searching && (
+          <FlatList
+            ref={messageList}
+            scrollEnabled={true}
+            style={styles.flatList}
+            data={dataO}
+            renderItem={(item) => (
+              <CustomMessage onPress={callBack} dataO={item} />
+            )}
+          />
+        )}
+        {searching && <Spinner size="giant" />}
       </View>
     </Panel>
   );
 };
+const w = Dimensions.get("screen");
 const styles = StyleSheet.create({
   top: {
     padding: 5,
   },
-  flatList: {},
+  flatList: {
+    height: w.height - 200,
+  },
 });
 export default SearchHero;
