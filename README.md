@@ -39,6 +39,11 @@ you can open in Android device or emulator
 npx react-native run-android
 ```
 
+# Preview App
+
+You can download app.apk file here to install on android
+https://drive.google.com/file/d/1gIBOVJ5zj9C-cuOSKsM75bRDUQXChPdP/view?usp=sharing
+
 # How to use the app
 
 Select the first hero, clicking on the 'Select hero' button and look for the hero by name, select it and it will be added to the main screen, do the same with the second and you can face them, after that you can scroll to right and touching the 'Refresh' button you will see the battle history
