@@ -1,6 +1,6 @@
 # heroes
 
-an app to view all heroes
+React Native App to view all heroes from external API.
 
 I used "React-native cli" for easier creation of the project.
 
